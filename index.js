@@ -1,7 +1,13 @@
 const express = require( 'express' ) 
 const app = express()
+const morgan  = require('morgan');
 
-app.use(express.json())
+app.use(express.json());
+
+morgan.token('host', (request, response) => {
+    return request.hostname;
+});
+
 
 let persons = [
     { 
@@ -26,6 +32,7 @@ let persons = [
     }
 ]
 
+app.use(morgan(':method :host :status :res[content-length] - :response-time ms :body')); //app.use(morgan('tiny'));
 //Home
 app.get('/', (request, response) => {
     const fURL = request.protocol + '://' + request.get('host');
@@ -83,8 +90,12 @@ const generateId = () => {
     return maxId + 1;
 }
 
+morgan.token('body', (request, response) => {
+    return JSON.stringify(request.body);
+});
 //ADD (POST) a person
 app.post('/api/persons', (request, response) => {
+    
     
     const body = request.body;
     
@@ -109,7 +120,9 @@ app.post('/api/persons', (request, response) => {
     response.json(person);
 })
 
-
+const unknownEndPoint = (request, response) => {
+    response.status(404).send({error: 'unknown endpoint'})
+}
 const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server running on PORT ${PORT}`);
