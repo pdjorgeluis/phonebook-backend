@@ -43,7 +43,7 @@ app.get('/', (request, response) => {
     response.send(`<h1>Phone Book APIs</h1> 
     <p> <a href=${fURL}/info> /info </a> <br/>
         <a href=${fURL}/api/persons> /api/persons </a> <br/>
-        <a href=${fURL}/api/persons/id> /api/persons/id </a> </p>`)
+        /api/persons/id </p>`)
 })
  
 // GET info
