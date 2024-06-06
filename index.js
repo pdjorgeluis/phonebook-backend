@@ -5,7 +5,7 @@ require('dotenv').config()
 //const morgan  = require('morgan');
 
 const Person = require('./models/person')
-//app.use(express.static('build'))
+app.use(express.static('build'))
 
 const requestLogger = (request, response, next) => {
     console.log('Method:', request.method)
