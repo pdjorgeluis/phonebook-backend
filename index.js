@@ -1,10 +1,15 @@
+require('dotenv').config()
 const express = require( 'express' ) 
 const app = express()
 const morgan  = require('morgan');
 
+const Person = require('./models/person')
+const mongoose = require('mongoose')
+
 app.use(express.json());
 
-const cors = require('cors')
+const cors = require('cors');
+//const { default: mongoose } = require('mongoose');
 app.use(cors())
 
 morgan.token('host', (request, response) => {
@@ -48,15 +53,25 @@ app.get('/', (request, response) => {
  
 // GET info
 app.get('/info', (request, response) => {
-    const personCount = persons.length;
+    /*const personCount = persons.length;
     const date = new Date();
     response.send(`<p>Phonebook has info for ${personCount} persons <br/>
-                    ${date}</p>`)
+                    ${date}</p>`)*/
+
+    Person.find({}).then(persons => {
+        const personCount = persons.length;
+        const date = new Date();
+        response.send(`<p>Phonebook has info for ${personCount} persons <br/>
+        ${date}</p>`)
+    })
 })
 
 // GET persons
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    //response.json(persons)
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
 })
 
 // GET a person
@@ -96,31 +111,39 @@ const generateId = () => {
 morgan.token('body', (request, response) => {
     return JSON.stringify(request.body);
 });
+
 //ADD (POST) a person
 app.post('/api/persons', (request, response) => {
-    
-    
     const body = request.body;
     
     if(!body.name || !body.number){
         return response.status(400).json({
             error: 'content missing'
         })
-    }else if(persons.find(person=>person.name === body.name)){
+    }/*else if(Person.find({}).then(persons => {
+        persons.find(person=>person.name === body.name)
+    })){
         return response.status(406).json({
             error: 'person already in bookphone'
         })
-    }
+    }*/
+    /*else if(persons.find(person=>person.name === body.name)){
+        return response.status(406).json({
+            error: 'person already in bookphone'
+        })
+    }*/
 
-    const person = {
+    const person = new Person({
         name: body.name,
         number: body.number,
-        id: generateId(),
-    }
-    
-    persons = persons.concat(person)
-    
-    response.json(person);
+        //id: generateId(),
+    })
+
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
+    //persons = persons.concat(person) 
+    //response.json(person);
 })
 
 const unknownEndPoint = (request, response) => {
